@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
 from enum import IntEnum, unique
+from sys import argv
+import fileinput
 
-program = input()
-parsed = list(map(int, program.split(",")))
+parsed = []
+with fileinput.input(argv[1]) as file:
+    for line in file:
+        parsed += map(int, line.split(","))
 
 
 @unique
