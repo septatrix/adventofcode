@@ -1,43 +1,91 @@
 #!/usr/bin/env python3
 
-from itertools import count
-from math import sqrt, floor
+from enum import IntEnum, unique
+from sys import argv
+import fileinput
 
-program = input()
-parsed = tuple(map(int, program.split(",")))
+parsed = []
+with fileinput.input(argv[1]) as file:
+    for line in file:
+        parsed += map(int, line.split(","))
 
 
-def execute(parsed, arg1, arg2):
-    counter = 0
-    parsed[1] = arg1
-    parsed[2] = arg2
-    while parsed[counter] != 99:
-        if parsed[counter] == 1:
-            parsed[parsed[counter + 3]] = (
-                parsed[parsed[counter + 1]] + parsed[parsed[counter + 2]]
-            )
-        elif parsed[counter] == 2:
-            parsed[parsed[counter + 3]] = (
-                parsed[parsed[counter + 1]] * parsed[parsed[counter + 2]]
-            )
+@unique
+class Opcode(IntEnum):
+    ADD = 1
+    MUL = 2
+    IN = 3
+    OUT = 4
+    JMP_IF_TRUE = 5
+    JMP_IF_FALSE = 6
+    LESS_THAN = 7
+    EQUALS = 8
+    HALT = 99
+
+
+counter = 0
+while parsed[counter] % 100 != Opcode.HALT:
+    parameter_mode, opcode = divmod(parsed[counter], 100)
+    if opcode == Opcode.ADD:
+        a, b, out = parsed[counter + 1 : counter + 4]
+        if not parameter_mode & 1:
+            a = parsed[a]
+        if not parameter_mode >> 1 & 1:
+            b = parsed[b]
+        parsed[out] = a + b
         counter += 4
-    return parsed[0]
-
-
-def cantor_unpairing(index):
-    w = floor((sqrt(8 * index + 1) - 1) / 2)
-    t = (w ** 2 + w) // 2
-    index2 = index - t
-    index1 = w - index2
-    return [index1, index2]
-
-
-from time import sleep
-
-for x, y in map(cantor_unpairing, count()):
-    try:
-        if execute(list(parsed), x, y) == 19690720:
-            print(x * 100 + y)
-            break
-    except IndexError:
-        pass
+    elif opcode == Opcode.MUL:
+        a, b, out = parsed[counter + 1 : counter + 4]
+        if not parameter_mode & 1:
+            a = parsed[a]
+        if not parameter_mode >> 1 & 1:
+            b = parsed[b]
+        parsed[out] = a * b
+        counter += 4
+    elif opcode == Opcode.IN:
+        parsed[parsed[counter + 1]] = int(input("Input: "))
+        counter += 2
+    elif opcode == Opcode.OUT:
+        out = parsed[counter + 1]
+        if not parameter_mode & 1:
+            out = parsed[out]
+        print(f"Output: {out}")
+        counter += 2
+    elif opcode == Opcode.JMP_IF_TRUE:
+        check, target = parsed[counter + 1 : counter + 3]
+        if not parameter_mode & 1:
+            check = parsed[check]
+        if not parameter_mode >> 1 & 1:
+            target = parsed[target]
+        if check:
+            counter = target
+        else:
+            counter += 3
+    elif opcode == Opcode.JMP_IF_FALSE:
+        check, target = parsed[counter + 1 : counter + 3]
+        if not parameter_mode & 1:
+            check = parsed[check]
+        if not parameter_mode >> 1 & 1:
+            target = parsed[target]
+        if not check:
+            counter = target
+        else:
+            counter += 3
+    elif opcode == Opcode.LESS_THAN:
+        a, b, out = parsed[counter + 1 : counter + 4]
+        if not parameter_mode & 1:
+            a = parsed[a]
+        if not parameter_mode >> 1 & 1:
+            b = parsed[b]
+        parsed[out] = 1 if a < b else 0
+        counter += 4
+    elif opcode == Opcode.EQUALS:
+        a, b, out = parsed[counter + 1 : counter + 4]
+        if not parameter_mode & 1:
+            a = parsed[a]
+        if not parameter_mode >> 1 & 1:
+            b = parsed[b]
+        parsed[out] = 1 if a == b else 0
+        counter += 4
+    else:
+        raise ValueError("Invalid opcode")
