@@ -2,5 +2,5 @@
 if [ ! -f input ]; then
     curl -o input 'https://adventofcode.com/2019/day/5/input' --header "$COOKIE"
 fi
-cat input | ./part-1.py
-cat input | ./part-2.py
+echo 1 | ./part-1.py input
+echo 5 | ./part-2.py input
