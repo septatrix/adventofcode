@@ -1,7 +1,6 @@
 use std::fs::File;
-use std::io::BufReader;
 use std::io::BufRead;
-
+use std::io::BufReader;
 
 #[derive(Debug)]
 struct BingoField(u64, bool);
@@ -46,7 +45,12 @@ impl BingoBoard {
         self.check_rows() || self.check_columns()
     }
     fn score(&self, called: u64) -> u64 {
-        self.fields.iter().filter(|f| !f.1).map(|f| f.0).sum::<u64>() * called
+        self.fields
+            .iter()
+            .filter(|f| !f.1)
+            .map(|f| f.0)
+            .sum::<u64>()
+            * called
     }
     fn call(&mut self, called: u64) {
         self.fields
@@ -62,12 +66,15 @@ impl BingoBoard {
             .map(|s| s.parse::<u64>().unwrap())
             .map(|u| BingoField(u, false))
             .collect::<Vec<_>>();
-        BingoBoard { dimensions, fields, complete: false }
+        BingoBoard {
+            dimensions,
+            fields,
+            complete: false,
+        }
     }
 }
 
 fn main() {
-
     let file = File::open("input.txt").expect("ERR: file not found!");
     let mut lines = BufReader::new(file).lines().map(|x| x.unwrap()).peekable();
 
