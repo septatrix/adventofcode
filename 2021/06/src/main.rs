@@ -9,11 +9,12 @@ fn main() {
         .map(|n| n.replace("\n", "").parse().unwrap())
         .collect();
 
-    naive(80, fishes.clone());
-    hash_map(256, fishes);
+    println!("#Fishes: {}", array(256, fishes.clone()));
+    println!("#Fishes: {}", naive(80, fishes.clone()));
+    println!("#Fishes: {}", hash_map(256, fishes));
 }
 
-fn naive(days: usize, mut fishes: Vec<u8>) {
+pub fn naive(days: usize, mut fishes: Vec<u8>) -> usize {
     for _ in 0..days {
         fishes = fishes
             .iter()
@@ -21,10 +22,10 @@ fn naive(days: usize, mut fishes: Vec<u8>) {
             .collect();
     }
 
-    println!("#Fishes: {}", fishes.len());
+    return fishes.len();
 }
 
-fn hash_map(days: usize, fishes: Vec<u8>) {
+pub fn hash_map(days: usize, fishes: Vec<u8>) -> usize {
     let mut fish_map: HashMap<u8, usize> = HashMap::new();
     for fish in fishes {
         *fish_map.entry(fish).or_insert(0) += 1;
@@ -42,5 +43,17 @@ fn hash_map(days: usize, fishes: Vec<u8>) {
         });
     }
 
-    println!("#Fishes: {}", fish_map.values().sum::<usize>());
+    return fish_map.values().sum::<usize>();
+}
+
+pub fn array(days: usize, fishes: Vec<u8>) -> usize {
+    let mut fish_cycle = [0usize; 9];
+    for fish in fishes {
+        fish_cycle[fish as usize] += 1;
+    }
+    for i in 0..days {
+        fish_cycle[(i + fish_cycle.len() - 2) % fish_cycle.len()] +=
+            fish_cycle[i % fish_cycle.len()];
+    }
+    return fish_cycle.iter().sum::<usize>();
 }
