@@ -96,41 +96,17 @@ impl Packet {
         match self {
             Packet::Literal { value, .. } => *value,
             Packet::Operator {
-                type_id: 0,
-                children,
-                ..
-            } => children.iter().map(Self::eval).sum(),
-            Packet::Operator {
-                type_id: 1,
-                children,
-                ..
-            } => children.iter().map(Self::eval).product(),
-            Packet::Operator {
-                type_id: 2,
-                children,
-                ..
-            } => children.iter().map(Self::eval).min().unwrap(),
-            Packet::Operator {
-                type_id: 3,
-                children,
-                ..
-            } => children.iter().map(Self::eval).max().unwrap(),
-            Packet::Operator {
-                type_id: 5,
-                children,
-                ..
-            } => (children[0].eval() > children[1].eval()) as u64,
-            Packet::Operator {
-                type_id: 6,
-                children,
-                ..
-            } => (children[0].eval() < children[1].eval()) as u64,
-            Packet::Operator {
-                type_id: 7,
-                children,
-                ..
-            } => (children[0].eval() == children[1].eval()) as u64,
-            _ => panic!("Unknown type_id for operator"),
+                type_id, children, ..
+            } => match type_id {
+                0 => children.iter().map(Self::eval).sum(),
+                1 => children.iter().map(Self::eval).product(),
+                2 => children.iter().map(Self::eval).min().unwrap(),
+                3 => children.iter().map(Self::eval).max().unwrap(),
+                5 => (children[0].eval() > children[1].eval()) as u64,
+                6 => (children[0].eval() < children[1].eval()) as u64,
+                7 => (children[0].eval() == children[1].eval()) as u64,
+                _ => panic!("Unexpected type_id for operator"),
+            },
         }
     }
 }
