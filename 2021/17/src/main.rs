@@ -26,7 +26,7 @@ fn main() {
     let mut hitting_velocities = 0;
 
     for x_vel in 0..=x_max {
-        for y_vel in 0..=-y_min {
+        for y_vel in y_min..=-y_min {
             let mut x = 0i32;
             let mut y = 0i32;
             let mut curr_x_vel = x_vel;
