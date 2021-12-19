@@ -12,6 +12,18 @@ impl Point {
     }
 }
 
+impl std::str::FromStr for Point {
+    type Err = std::num::ParseIntError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let nums = s
+            .split(',')
+            .map(i16::from_str)
+            .collect::<Result<Vec<_>, _>>()?;
+        let [x, y, z] = <[i16; 3]>::try_from(nums).unwrap();
+        Ok(Point(x, y, z))
+    }
+}
+
 fn main() {
     let input = include_str!("../input.txt");
 
@@ -20,16 +32,11 @@ fn main() {
         .map(|s| {
             s.lines()
                 .skip(1)
-                .map(|p| {
-                    let [a, b, c] = <[i16; 3]>::try_from(
-                        p.split(',').map(|n| n.parse().unwrap()).collect::<Vec<_>>(),
-                    )
-                    .unwrap();
-                    Point(a, b, c)
-                })
-                .collect::<Vec<_>>()
+                .map(std::str::FromStr::from_str)
+                .collect::<Result<Vec<_>, _>>()
         })
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
 
     // set first scanner as the coordinate origin
     let mut scanner_pos = Vec::new();
